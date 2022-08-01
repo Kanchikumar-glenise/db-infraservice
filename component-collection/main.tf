@@ -20,15 +20,43 @@ resource "random_password" "password" {
 }
 
 
-module "secret-manager-with-rotation" {
-  source              = "../component/secret-manager-with-rotation/terraform-aws-secret-manager-with-rotation/"
-  name                = "PassRotation"
-  rotation_days       = 7
-  postgresql_username = var.database_users
-  postgresql_dbname   = var.auth_database_name
-  postgresql_password = random_password.password.result
+# Creating a AWS secret for database master account (Aurora-Secret-DB)
+
+resource "aws_secretsmanager_secret" "aurorasecretmasterDB" {
+  name = "db-${replace(basename(path.cwd), "_", "-")}"
 }
 
+# Creating a AWS secret versions for database master account (Masteraccoundb)
+
+resource "aws_secretsmanager_secret_version" "sversion" {
+  secret_id     = aws_secretsmanager_secret.aurorasecretmasterDB.id
+  secret_string = <<EOF
+   {
+    "username": "root",
+    "password": "${random_password.password.result}"
+   }
+EOF
+}
+
+
+
+# Importing the AWS secrets created previously using arn.
+
+data "aws_secretsmanager_secret" "aurorasecretmasterDB" {
+  arn = aws_secretsmanager_secret.aurorasecretmasterDB.arn
+}
+
+# Importing the AWS secret version created previously using arn.
+
+data "aws_secretsmanager_secret_version" "creds" {
+  secret_id = data.aws_secretsmanager_secret.aurorasecretmasterDB.arn
+}
+
+# After importing the secrets storing into Locals
+
+locals {
+  db_creds = jsondecode(data.aws_secretsmanager_secret_version.creds.secret_string)
+}
 
 
 ################################################################################
