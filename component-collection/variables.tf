@@ -3,14 +3,9 @@ variable "database_subnet_group_name" {
   type    = string
 }
 
-
-
-
-
-
-
 variable "auth_database_name" {
-  description = "List of user and roles ARNs that can access the AWS services."
+  description = "List of database_names"
+  default = ""
   type        = string
 }
 
@@ -20,7 +15,9 @@ variable "database_users" {
 }
 
 variable "vpc_id" {
-  type = string
+  description = "ID of the VPC where to create security group"
+  type        = string
+  default     = ""
 }
 
 variable "db_subnet_group_name" {
@@ -30,4 +27,11 @@ variable "db_subnet_group_name" {
 variable "private_subnets_cidr_blocks" {
   type = string
 }
+
+variable "tags" {
+  type    = map(any)
+  default = {}
+}
+
+
 
