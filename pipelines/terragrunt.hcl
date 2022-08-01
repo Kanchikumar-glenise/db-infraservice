@@ -11,7 +11,7 @@ locals {
 }
 
 terraform {
-  source = "../component-collection"
+  source = "..//component-collection"
   extra_arguments "custom_vars" {
     commands = [
       "apply",
