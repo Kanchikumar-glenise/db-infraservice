@@ -18,9 +18,8 @@ locals {
     "uambackend",
     "dabservicemcpdb_user",
     "postgres_wow",
-    "wow-webapp",
-    "kanchi"
-  ]
+    "wow-webapp"
+    ]
   vpc_id = "vpc-0f62b3731aca37d72"
   db_subnet_group_name = "staging"
   private_subnets_cidr_blocks = "10.1.76.0/22"
