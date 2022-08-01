@@ -1,24 +1,16 @@
-provider "aws" {
-  region = local.region
-}
-
-locals {
-  region = "eu-west-2"
-}
-
-
 
 ################################################################################
 # Supporting Resources
 ################################################################################
 
+
 # Firstly create a random generated password to use in secrets.
+
 resource "random_password" "password" {
   length           = 16
   special          = true
   override_special = "^[a-zA-Z0-9]*$"
 }
-
 
 # Creating a AWS secret for database master account (Aurora-Secret-DB)
 
@@ -59,14 +51,15 @@ locals {
 }
 
 
+
 ################################################################################
 # RDS Aurora Module
 ################################################################################
 
 module "aurora" {
-  source = "../component/services/aurora/"
+  source = "..//component/services/aurora"
 
-  name           = var.auth_database_name
+  database_name  = var.auth_database_name
   engine         = "aurora-postgresql"
   engine_version = "14.3"
   instances = {
@@ -112,13 +105,13 @@ module "aurora" {
   iam_database_authentication_enabled = true
   master_password                     = local.db_creds.password
   create_random_password              = false
-  apply_immediately   = true
-  skip_final_snapshot = true
+  apply_immediately                   = true
+  skip_final_snapshot                 = true
 
   db_parameter_group_name         = aws_db_parameter_group.auroradb.id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.auroradb.id
   enabled_cloudwatch_logs_exports = ["postgresql"]
-  tags = local.tags
+  tags                            = local.tags
 }
 
 resource "aws_db_parameter_group" "auroradb" {
@@ -137,10 +130,11 @@ resource "aws_rds_cluster_parameter_group" "auroradb" {
 
 
 module "db_iam_user" {
-  source = "../component/security/aws/iam-db-user/"
-  name  = "db_iam_users"
-  users = var.database_users
-  tags = merge(var.tags)
+  source = "..//component/security/aws/iam-db-user"
+  name   = "db_iam_users"
+  users  = var.database_users
+  tags   = merge(var.tags)
+
 }
 
 
